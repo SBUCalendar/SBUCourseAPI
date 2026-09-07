@@ -1,0 +1,328 @@
+@using System.Text.Json
+@using Microsoft.Extensions.Options
+@using SBUAPI.Options
+@inject IOptions<SiteOptions> SiteConfiguration
+@{
+    ViewData["Title"] = "برنامه هفتگی دانشگاه شهید بهشتی";
+    ViewData["Description"] = "جست‌وجوی دروس دانشگاه شهید بهشتی، بررسی تداخل کلاس و امتحان و ساخت برنامه هفتگی دانشجویی.";
+    ViewData["IsHomePage"] = true;
+    ViewData["CanonicalPath"] = "/";
+
+    var site = SiteConfiguration.Value;
+    var homeUrl = site.GetAbsoluteUrl("");
+    var logoUrl = site.GetAbsoluteUrl("images/brand-header-light.png");
+    var cspNonce = Context.Items["CspNonce"]?.ToString();
+    string? structuredData = null;
+
+    if (homeUrl is not null)
+    {
+        structuredData = JsonSerializer.Serialize(new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@graph"] = new object[]
+            {
+                new Dictionary<string, object?>
+                {
+                    ["@type"] = "WebSite",
+                    ["@id"] = $"{homeUrl}#website",
+                    ["url"] = homeUrl,
+                    ["name"] = site.Name,
+                    ["alternateName"] = site.Title,
+                    ["description"] = site.Description,
+                    ["inLanguage"] = "fa-IR"
+                },
+                new Dictionary<string, object?>
+                {
+                    ["@type"] = "WebApplication",
+                    ["@id"] = $"{homeUrl}#webapp",
+                    ["url"] = homeUrl,
+                    ["name"] = site.Title,
+                    ["description"] = site.Description,
+                    ["image"] = logoUrl,
+                    ["inLanguage"] = "fa-IR",
+                    ["applicationCategory"] = "EducationalApplication",
+                    ["operatingSystem"] = "Any",
+                    ["browserRequirements"] = "مرورگر مدرن با پشتیبانی از JavaScript",
+                    ["isAccessibleForFree"] = true,
+                    ["featureList"] = new[]
+                    {
+                        "جست‌وجوی دروس دانشگاه شهید بهشتی",
+                        "ساخت برنامه هفتگی",
+                        "بررسی تداخل کلاس و امتحان",
+                        "خروجی تصویر و تقویم"
+                    },
+                    ["offers"] = new Dictionary<string, object?>
+                    {
+                        ["@type"] = "Offer",
+                        ["price"] = 0,
+                        ["priceCurrency"] = "IRR"
+                    }
+                }
+            }
+        });
+    }
+}
+
+<header class="site-header">
+    <div class="site-header-inner">
+        <a class="brand-logo" asp-controller="Home" asp-action="Index" aria-label="صفحه اصلی برنامه هفتگی دانشگاه شهید بهشتی">
+            <img class="brand-image-light"
+                 src="~/images/brand-header-light.png"
+                 alt=""
+                 width="2135"
+                 height="736"
+                 decoding="async" />
+            <img class="brand-image-dark"
+                 src="~/images/brand-header-dark.png"
+                 alt=""
+                 width="2135"
+                 height="736"
+                 decoding="async" />
+        </a>
+        <div class="header-meta">
+            <h1 class="header-label">برنامه هفتگی دانشگاه شهید بهشتی</h1>
+            <button class="about-button" id="aboutSiteBtn" type="button" aria-label="درباره SBU Calendar" aria-haspopup="dialog">درباره ما</button>
+            <a class="github-link"
+               href="https://github.com/SBUCalendar/SBUCourseAPI"
+               target="_blank"
+               rel="noopener noreferrer"
+               aria-label="مشاهده مخزن SBU Calendar در GitHub؛ باز شدن در پنجره جدید">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 2.25a9.75 9.75 0 0 0-3.08 19c.49.09.67-.21.67-.47v-1.72c-2.74.6-3.32-1.16-3.32-1.16-.45-1.14-1.1-1.44-1.1-1.44-.9-.61.07-.6.07-.6 1 .07 1.52 1.02 1.52 1.02.88 1.52 2.32 1.08 2.88.83.09-.64.35-1.08.63-1.33-2.18-.25-4.48-1.09-4.48-4.82 0-1.07.38-1.94 1.02-2.62-.1-.25-.44-1.24.1-2.58 0 0 .83-.27 2.68 1a9.3 9.3 0 0 1 4.88 0c1.86-1.26 2.68-1 2.68-1 .54 1.34.2 2.33.1 2.58.64.68 1.02 1.55 1.02 2.62 0 3.74-2.3 4.57-4.5 4.81.36.31.67.91.67 1.84v2.73c0 .26.18.57.68.47A9.75 9.75 0 0 0 12 2.25Z" />
+                </svg>
+            </a>
+            <div class="theme-switch" role="group" aria-label="انتخاب ظاهر سایت">
+                <button class="theme-option" type="button" data-theme-choice="light" title="تم روشن" aria-label="استفاده از تم روشن" aria-pressed="false">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.25"></circle><path d="M12 2.75v2M12 19.25v2M2.75 12h2M19.25 12h2M5.46 5.46l1.42 1.42M17.12 17.12l1.42 1.42M18.54 5.46l-1.42 1.42M6.88 17.12l-1.42 1.42"></path></svg>
+                </button>
+                <button class="theme-option" type="button" data-theme-choice="system" title="هماهنگ با سیستم" aria-label="هماهنگ با تم سیستم" aria-pressed="false">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="13" rx="2.5"></rect><path d="M8.5 21h7M12 17.5V21"></path></svg>
+                </button>
+                <button class="theme-option" type="button" data-theme-choice="dark" title="تم تیره" aria-label="استفاده از تم تیره" aria-pressed="false">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.25 15.18A8.5 8.5 0 0 1 8.82 3.75 8.5 8.5 0 1 0 20.25 15.18Z"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="page">
+    <div class="workspace-frame" id="workspaceFrame">
+    <section class="workspace mobile-overview" id="workspace">
+        <section class="panel calendar-panel" id="calendarCapture" aria-label="برنامه انتخاب‌شده">
+            <div class="calendar-toolbar">
+                <div class="schedule-row">
+                    <div class="schedule-tabs-wrap">
+                        <button class="btn btn-icon btn-small btn-danger delete-schedule-plain" id="deleteScheduleBtn" type="button" title="حذف برنامه فعلی" aria-label="حذف برنامه فعلی"><iconify-icon icon="solar:trash-bin-trash-linear"></iconify-icon></button>
+                        <div class="schedule-tabs" id="scheduleTabs" aria-label="برنامه‌های ذخیره‌شده"></div>
+                        <button class="btn btn-icon btn-small new-schedule-plain" id="newScheduleBtn" type="button" title="برنامه جدید" aria-label="برنامه جدید"><iconify-icon icon="solar:add-circle-linear"></iconify-icon></button>
+                    </div>
+                    <div class="schedule-actions">
+                        <button class="btn btn-small auto-builder-trigger" id="autoBuilderBtn" type="button"><iconify-icon icon="solar:magic-stick-3-linear"></iconify-icon><span>برنامه‌ساز خودکار</span></button>
+                        <div class="toolbar-export" aria-label="خروجی برنامه">
+                            <button class="btn btn-icon btn-small export-icon" id="downloadImageBtn" type="button" title="دانلود تصویر" aria-label="دانلود تصویر"><iconify-icon icon="solar:download-square-linear"></iconify-icon></button>
+                            <button class="btn btn-icon btn-small export-icon google-calendar-icon" id="googleCalendarBtn" type="button" title="افزودن به Google Calendar" aria-label="افزودن به Google Calendar"><iconify-icon icon="logos:google-calendar"></iconify-icon></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="view-tabs" role="tablist" aria-label="نوع برنامه">
+                    <button class="view-tab active" data-view="classes" type="button" role="tab" aria-selected="true">برنامه هفتگی</button>
+                    <button class="view-tab" data-view="exams" type="button" role="tab" aria-selected="false">برنامه امتحانی</button>
+                </div>
+            </div>
+
+            <div class="conflict-banner" id="conflictBanner" role="alert"></div>
+            <div id="classScheduleView">
+                <div class="calendar-scroll" id="calendarScroll"><div class="calendar" id="calendar"></div></div>
+                <div class="calendar-foot">
+                    <span>کلیک: حذف کامل درس · کلیک راست: حذف همان جلسه</span>
+                    <span class="calendar-summary"><strong id="selectedCount">۰</strong> درس · <strong id="selectedUnits">۰</strong> واحد</span>
+                </div>
+            </div>
+            <section class="exam-view" id="examScheduleView" hidden></section>
+            <section class="selected-courses-dock" aria-label="دروس انتخاب‌شده در برنامه فعلی">
+                <strong>دروس انتخاب‌شده</strong>
+                <div class="selected-courses-dock-list" id="selectedCoursesDock" aria-live="polite"></div>
+            </section>
+        </section>
+
+        <aside class="panel courses-panel" aria-label="جست‌وجو و انتخاب درس">
+            <div class="panel-head">
+                <div><strong>دروس ارائه‌شده</strong><small>جست‌وجو و افزودن به برنامه</small></div>
+                <button class="link-btn manual-course-trigger" id="manualCourseBtn" type="button"><iconify-icon icon="solar:add-circle-linear" aria-hidden="true"></iconify-icon>افزودن درس دلخواه</button>
+            </div>
+            <div class="filter-body">
+                <div class="field auto-builder-compact-select main-filter-compact-select" data-auto-select="facultyFilter">
+                    <label id="facultyFilterLabel">دانشکده</label>
+                    <button class="auto-builder-select-button" id="facultyFilterButton" type="button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="facultyFilterLabel facultyFilterValue"><span id="facultyFilterValue">همه دانشکده‌ها</span><iconify-icon icon="solar:alt-arrow-down-linear" aria-hidden="true"></iconify-icon></button>
+                    <div class="auto-builder-select-menu" id="facultyFilterMenu" role="listbox" aria-labelledby="facultyFilterLabel" hidden></div>
+                    <select id="facultyFilter" hidden tabindex="-1" aria-hidden="true"><option value="">همه دانشکده‌ها</option></select>
+                </div>
+                <div class="field auto-builder-compact-select main-filter-compact-select" data-auto-select="departmentFilter">
+                    <label id="departmentFilterLabel">گروه آموزشی</label>
+                    <button class="auto-builder-select-button" id="departmentFilterButton" type="button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="departmentFilterLabel departmentFilterValue"><span id="departmentFilterValue">همه گروه‌ها</span><iconify-icon icon="solar:alt-arrow-down-linear" aria-hidden="true"></iconify-icon></button>
+                    <div class="auto-builder-select-menu" id="departmentFilterMenu" role="listbox" aria-labelledby="departmentFilterLabel" hidden></div>
+                    <select id="departmentFilter" hidden tabindex="-1" aria-hidden="true"><option value="">همه گروه‌ها</option></select>
+                </div>
+            </div>
+            <div class="search-row">
+                <div class="searchbox"><iconify-icon icon="solar:magnifer-linear"></iconify-icon><input id="searchInput" type="search" placeholder="نام درس، کد یا استاد…" autocomplete="off" /></div>
+            </div>
+            <div class="courses-summary"><span><b id="resultCount">۰</b> نتیجه</span><span id="activeScheduleCaption">برنامه ۱</span></div>
+            <div class="course-list" id="courseList" aria-live="polite" aria-busy="true">
+                @for (var i = 0; i < 5; i++)
+                {
+                    <article class="course-skeleton" aria-hidden="true">
+                        <div class="skeleton-row"><span class="skeleton-line skeleton-title"></span><span class="skeleton-button"></span></div>
+                        <span class="skeleton-line skeleton-subtitle"></span>
+                        <span class="skeleton-line skeleton-detail"></span>
+                        <span class="skeleton-line skeleton-detail skeleton-detail-short"></span>
+                        <div class="skeleton-footer"><span class="skeleton-line"></span><span class="skeleton-line"></span></div>
+                    </article>
+                }
+            </div>
+        </aside>
+    </section>
+    </div>
+</main>
+
+<div class="modal-backdrop" id="autoBuilderModal" aria-hidden="true">
+    <div class="modal auto-builder-modal" id="autoBuilderDialog" role="dialog" aria-modal="true" aria-labelledby="autoBuilderTitle" aria-describedby="autoBuilderDescription" tabindex="-1">
+        <div class="modal-head">
+            <div class="auto-builder-heading"><div><strong id="autoBuilderTitle">برنامه‌ساز خودکار</strong><small>ترکیب ارائه‌های بدون تداخل کلاس</small></div></div>
+            <button class="btn btn-icon btn-small auto-builder-close" id="closeAutoBuilderModal" type="button" aria-label="بستن"><iconify-icon icon="solar:close-circle-linear"></iconify-icon></button>
+        </div>
+        <div class="modal-body auto-builder-body">
+            <div class="auto-builder-step" id="autoBuilderSelectionStep">
+                <p class="modal-copy auto-builder-copy" id="autoBuilderDescription">درس‌هایی را که می‌خواهید این ترم بردارید انتخاب کنید. از هر درس یک ارائه انتخاب می‌شود و فقط برنامه‌هایی نمایش داده می‌شوند که تداخل زمانی کلاس ندارند.</p>
+                <div class="auto-builder-selection-layout">
+                    <section class="auto-builder-catalog-pane" aria-label="جست‌وجو و انتخاب درس">
+                        <div class="auto-builder-filter-grid">
+                            <div class="modal-field auto-builder-compact-select" data-auto-select="autoBuilderFaculty">
+                                <label id="autoBuilderFacultyLabel">دانشکده</label>
+                                <button class="auto-builder-select-button" id="autoBuilderFacultyButton" type="button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="autoBuilderFacultyLabel autoBuilderFacultyValue"><span id="autoBuilderFacultyValue">همه دانشکده‌ها</span><iconify-icon icon="solar:alt-arrow-down-linear" aria-hidden="true"></iconify-icon></button>
+                                <div class="auto-builder-select-menu" id="autoBuilderFacultyMenu" role="listbox" aria-labelledby="autoBuilderFacultyLabel" hidden></div>
+                                <select id="autoBuilderFaculty" hidden tabindex="-1" aria-hidden="true"><option value="">همه دانشکده‌ها</option></select>
+                            </div>
+                            <div class="modal-field auto-builder-compact-select" data-auto-select="autoBuilderDepartment">
+                                <label id="autoBuilderDepartmentLabel">گروه آموزشی</label>
+                                <button class="auto-builder-select-button" id="autoBuilderDepartmentButton" type="button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="autoBuilderDepartmentLabel autoBuilderDepartmentValue"><span id="autoBuilderDepartmentValue">همه گروه‌ها</span><iconify-icon icon="solar:alt-arrow-down-linear" aria-hidden="true"></iconify-icon></button>
+                                <div class="auto-builder-select-menu" id="autoBuilderDepartmentMenu" role="listbox" aria-labelledby="autoBuilderDepartmentLabel" hidden></div>
+                                <select id="autoBuilderDepartment" hidden tabindex="-1" aria-hidden="true"><option value="">همه گروه‌ها</option></select>
+                            </div>
+                        </div>
+                        <div class="auto-builder-searchbox">
+                            <iconify-icon icon="solar:magnifer-linear"></iconify-icon>
+                            <input id="autoBuilderSearch" type="search" placeholder="نام یا کد درس…" autocomplete="off" aria-label="جست‌وجوی درس برای برنامه‌ساز" />
+                        </div>
+                        <div class="auto-builder-suggestions" id="autoBuilderSuggestions" aria-live="polite"></div>
+                    </section>
+                    <section class="auto-builder-picked-pane" aria-label="درس‌های انتخاب‌شده">
+                        <div class="auto-builder-picked-head"><strong>درس‌های انتخاب‌شده</strong><span id="autoBuilderSelectionCount">۰ درس انتخاب شده</span></div>
+                        <div class="auto-builder-selected" id="autoBuilderSelected" aria-live="polite"></div>
+                        <button class="btn btn-primary auto-builder-generate" id="generateSchedulesBtn" type="button" disabled><iconify-icon icon="solar:stars-line-duotone"></iconify-icon>ساخت برنامه‌ها</button>
+                    </section>
+                </div>
+            </div>
+            <div class="auto-builder-step auto-builder-results-step" id="autoBuilderResultsStep" hidden>
+                <div class="auto-builder-results-head">
+                    <button class="btn btn-icon btn-small auto-builder-back" id="autoBuilderBackBtn" type="button" aria-label="بازگشت به انتخاب درس‌ها"><iconify-icon icon="solar:arrow-right-linear"></iconify-icon></button>
+                    <div><strong>برنامه‌های پیشنهادی</strong><small>همهٔ ترکیب‌های نمایش‌داده‌شده بدون تداخل زمانی کلاس هستند.</small></div>
+                </div>
+                <div class="auto-builder-status" id="autoBuilderStatus" role="status" aria-live="polite"></div>
+                <div class="auto-builder-results" id="autoBuilderResults"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-backdrop" id="manualCourseModal" aria-hidden="true">
+    <div class="modal manual-course-modal" id="manualCourseDialog" role="dialog" aria-modal="true" aria-labelledby="manualCourseTitle" tabindex="-1">
+        <div class="modal-head">
+            <div><strong id="manualCourseTitle">افزودن درس دلخواه</strong><small>این درس فقط تا زمان باز بودن صفحه نگه‌داری می‌شود.</small></div>
+        </div>
+        <form class="modal-body manual-course-body" id="manualCourseForm">
+            <div class="manual-course-basics">
+                <div class="modal-field"><label for="manualCourseName">نام درس <span aria-hidden="true">*</span></label><input id="manualCourseName" name="courseName" type="text" maxlength="120" required autocomplete="off" /></div>
+                <div class="modal-field"><label for="manualProfessorName">نام استاد <small>اختیاری</small></label><input id="manualProfessorName" name="professorName" type="text" maxlength="120" autocomplete="off" /></div>
+            </div>
+            <fieldset class="manual-course-section" aria-labelledby="manualMeetingsTitle">
+                <div class="manual-course-section-head"><strong id="manualMeetingsTitle">جلسه‌های کلاس</strong><button class="link-btn" id="addManualMeetingBtn" type="button"><iconify-icon icon="solar:add-circle-linear" aria-hidden="true"></iconify-icon>جلسه دیگر</button></div>
+                <div class="manual-meetings" id="manualMeetings"></div>
+            </fieldset>
+            <fieldset class="manual-course-section">
+                <legend>امتحان <small>اختیاری</small></legend>
+                <div class="manual-exam-grid">
+                    <div class="modal-field"><label for="manualExamDate">تاریخ امتحان</label><input class="manual-picker-input" id="manualExamDate" name="examDate" type="text" inputmode="none" placeholder="انتخاب تاریخ" readonly aria-haspopup="dialog" /></div>
+                    <div class="modal-field"><label for="manualExamStart">شروع</label><input class="manual-picker-input" id="manualExamStart" name="examStart" type="text" inputmode="none" placeholder="انتخاب ساعت" readonly aria-haspopup="dialog" data-manual-time-picker /></div>
+                    <div class="modal-field"><label for="manualExamEnd">پایان</label><input class="manual-picker-input" id="manualExamEnd" name="examEnd" type="text" inputmode="none" placeholder="انتخاب ساعت" readonly aria-haspopup="dialog" data-manual-time-picker /></div>
+                </div>
+            </fieldset>
+            <p class="manual-course-error" id="manualCourseError" role="alert" hidden></p>
+            <div class="modal-actions"><button class="btn" id="cancelManualCourseBtn" type="button">انصراف</button><button class="btn btn-primary" type="submit"><iconify-icon icon="solar:add-circle-linear"></iconify-icon>افزودن به برنامه</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="manual-picker-popover" id="manualPickerPopover" role="dialog" aria-modal="false" hidden></div>
+
+<div class="modal-backdrop" id="googleModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="googleModalTitle">
+        <div class="modal-head"><strong id="googleModalTitle">افزودن برنامه به Google Calendar</strong><button class="btn btn-icon btn-small" id="closeGoogleModal" type="button" aria-label="بستن"><iconify-icon icon="solar:close-circle-linear"></iconify-icon></button></div>
+        <div class="modal-body">
+            <p class="modal-copy">یک فایل استاندارد iCalendar ساخته می‌شود. تاریخ زیر باید اولین شنبه‌ی برگزاری کلاس‌ها باشد.</p>
+            <div class="modal-grid">
+                <div class="modal-field"><label for="semesterStart">اولین شنبه‌ی ترم</label><input id="semesterStart" type="date" /></div>
+                <div class="modal-field"><label for="semesterWeeks">تعداد هفته‌ها</label><input id="semesterWeeks" type="number" min="1" max="30" value="16" /></div>
+            </div>
+            <div class="modal-actions"><button class="btn" id="cancelGoogleBtn" type="button">انصراف</button><button class="btn btn-primary" id="exportIcsBtn" type="button"><iconify-icon icon="logos:google-calendar"></iconify-icon>ساخت فایل Calendar</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-backdrop" id="aboutModal" aria-hidden="true">
+    <div class="modal about-modal" id="aboutDialog" role="dialog" aria-modal="true" aria-label="درباره SBU Calendar" aria-describedby="aboutModalDescription" tabindex="-1">
+        <div class="modal-body about-modal-body" id="aboutModalDescription">
+            <p>هدف SBU Calendar این است که دانشجویان دانشگاه شهید بهشتی بتوانند دروس ارائه‌شده را سریع‌تر پیدا کنند، تداخل کلاس‌ها و امتحان‌ها را پیش از انتخاب واحد ببینند و برنامه هفتگی مناسب خود را ساده‌تر بسازند.</p>
+            <div class="about-note">
+                این وب‌سایت یک ابزار مستقل دانشجویی است و جایگزین سامانه رسمی دانشگاه نیست؛ پیش از انتخاب واحد نهایی، اطلاعات دروس را با سامانه رسمی دانشگاه بررسی کنید.
+            </div>
+            <a class="about-telegram-link" href="https://t.me/SBUCalendar" target="_blank" rel="noopener noreferrer" aria-label="کانال تلگرام SBU Calendar؛ باز شدن در پنجره جدید">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21.5 3.4-3 16.1c-.2 1.1-1.1 1.4-2 .9l-5.2-3.8-2.5 2.4c-.3.3-.5.5-1 .5l.4-5.3 9.7-8.8c.4-.4-.1-.6-.7-.3l-12 7.5-5.1-1.6c-1.1-.4-1.1-1.1.2-1.6L20.3 2c.9-.3 1.5.2 1.2 1.4Z"></path></svg>
+                <span>کانال تلگرام</span>
+                <b dir="ltr"></b>
+            </a>
+        </div>
+    </div>
+</div>
+
+<aside class="desktop-notice" id="desktopNotice" role="status" aria-live="polite" aria-hidden="true" hidden>
+    <span class="desktop-notice-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2.5"></rect><path d="M8 21h8M12 17v4"></path></svg>
+    </span>
+    <span class="desktop-notice-copy"><strong>نمایش بهتر در دسکتاپ</strong><small>برای دیدن کامل‌تر جدول و مدیریت راحت‌تر برنامه، پیشنهاد می‌کنیم سایت را با دسکتاپ باز کنید. نسخه موبایل همچنان قابل استفاده است.</small></span>
+    <button class="desktop-notice-close" id="desktopNoticeClose" type="button" aria-label="بستن پیشنهاد دسکتاپ">×</button>
+    <span class="desktop-notice-progress" aria-hidden="true"></span>
+</aside>
+
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true">
+    <span class="toast-icon" id="toastIcon" aria-hidden="true"></span>
+    <span class="toast-message" id="toastMessage"></span>
+    <button class="toast-close" id="toastCloseBtn" type="button" aria-label="بستن پیام">×</button>
+    <span class="toast-progress" aria-hidden="true"></span>
+</div>
+
+@section Head
+{
+    @if (structuredData is not null)
+    {
+        <script type="application/ld+json" nonce="@cspNonce">@Html.Raw(structuredData)</script>
+    }
+}
+
+@section Scripts
+{
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+}

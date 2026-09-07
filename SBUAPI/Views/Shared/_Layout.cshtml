@@ -1,0 +1,81 @@
+@using Microsoft.Extensions.Options
+@using SBUAPI.Options
+@inject IOptions<SiteOptions> SiteConfiguration
+@{
+    var site = SiteConfiguration.Value;
+    var isHomePage = ViewData["IsHomePage"] as bool? == true;
+    var viewTitle = ViewData["Title"]?.ToString();
+    var documentTitle = isHomePage
+        ? site.Title
+        : string.IsNullOrWhiteSpace(viewTitle)
+            ? site.Title
+            : $"{viewTitle} | {site.Name}";
+    var description = ViewData["Description"]?.ToString() ?? site.Description;
+    var robots = ViewData["Robots"]?.ToString()
+        ?? "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
+    var canonicalPath = ViewData["CanonicalPath"]?.ToString();
+    var canonicalUrl = canonicalPath is null ? null : site.GetAbsoluteUrl(canonicalPath);
+    var socialImageUrl = site.GetAbsoluteUrl("images/brand-header-light.png");
+}
+<!doctype html>
+<html lang="fa-IR" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" id="themeColorMeta" content="#fffdf8" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="description" content="@description" />
+    <meta name="robots" content="@robots" />
+    <meta name="googlebot" content="@robots" />
+
+    <title>@documentTitle</title>
+
+    @if (canonicalUrl is not null)
+    {
+        <link rel="canonical" href="@canonicalUrl" />
+        <link rel="alternate" hreflang="fa-IR" href="@canonicalUrl" />
+        <link rel="alternate" hreflang="x-default" href="@canonicalUrl" />
+    }
+
+    <meta property="og:locale" content="fa_IR" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="@site.Name" />
+    <meta property="og:title" content="@documentTitle" />
+    <meta property="og:description" content="@description" />
+    @if (canonicalUrl is not null)
+    {
+        <meta property="og:url" content="@canonicalUrl" />
+    }
+    @if (socialImageUrl is not null)
+    {
+        <meta property="og:image" content="@socialImageUrl" />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="2135" />
+        <meta property="og:image:height" content="736" />
+        <meta property="og:image:alt" content="لوگوی SbuCalendar؛ برنامه هفتگی دانشگاه شهید بهشتی" />
+    }
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@documentTitle" />
+    <meta name="twitter:description" content="@description" />
+    @if (socialImageUrl is not null)
+    {
+        <meta name="twitter:image" content="@socialImageUrl" />
+        <meta name="twitter:image:alt" content="لوگوی SbuCalendar؛ برنامه هفتگی دانشگاه شهید بهشتی" />
+    }
+
+    <link rel="icon" type="image/png" href="~/images/favicon.png" asp-append-version="true" />
+    <link rel="apple-touch-icon" href="~/images/favicon.png" asp-append-version="true" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+    <script src="~/js/theme.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Head", required: false)
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="@(isHomePage ? "home-page" : null)">
+    @RenderBody()
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

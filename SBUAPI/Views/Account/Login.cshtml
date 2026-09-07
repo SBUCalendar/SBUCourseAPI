@@ -1,0 +1,43 @@
+@model SBUAPI.Models.AdminLoginViewModel
+
+@{
+    ViewData["Title"] = "ورود مدیریت";
+    ViewData["Robots"] = "noindex, nofollow";
+}
+
+<main class="auth-page">
+    <section class="auth-card" aria-labelledby="login-title">
+        <a class="auth-brand" asp-controller="Home" asp-action="Index" aria-label="بازگشت به تقویم">
+            <img src="~/images/brand-header-light.png" alt="SbuCalendar" />
+        </a>
+
+        <div class="auth-heading">
+            <h1 id="login-title">ورود مدیریت</h1>
+            <p>برای به‌روزرسانی اطلاعات دروس وارد شوید.</p>
+        </div>
+
+        <form asp-controller="Account" asp-action="Login" method="post" class="auth-form">
+            <input asp-for="ReturnUrl" type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="form-errors"></div>
+
+            <div class="admin-field">
+                <label asp-for="Username"></label>
+                <input asp-for="Username" autocomplete="username" autofocus />
+                <span asp-validation-for="Username"></span>
+            </div>
+
+            <div class="admin-field">
+                <label asp-for="Password"></label>
+                <input asp-for="Password" type="password" autocomplete="current-password" />
+                <span asp-validation-for="Password"></span>
+            </div>
+
+            <button class="admin-primary-button" type="submit">ورود امن</button>
+        </form>
+    </section>
+</main>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

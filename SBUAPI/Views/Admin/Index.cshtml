@@ -1,0 +1,36 @@
+@model SBUAPI.Models.AdminBehestanViewModel
+
+@{
+    ViewData["Title"] = "مدیریت سایت";
+    ViewData["Robots"] = "noindex, nofollow";
+}
+
+<main class="admin-page">
+    <div class="admin-shell">
+        <section class="admin-card" aria-labelledby="admin-title">
+            <header class="admin-card-header">
+                <div><span class="admin-eyebrow">SbuCalendar</span><h1 id="admin-title">مدیریت اطلاعات دروس</h1><p>نشست بهستان فقط برای همین درخواست استفاده می‌شود و در پایگاه داده ذخیره نخواهد شد.</p></div>
+                <form asp-controller="Account" asp-action="Logout" method="post"><button class="admin-secondary-button" type="submit">خروج</button></form>
+            </header>
+
+            @if (Model.Success.HasValue)
+            {
+                <div class="admin-alert @(Model.Success.Value ? "is-success" : "is-error")" role="status"><span>@Model.Message</span>@if (Model.Success.Value && Model.CourseCount > 0){<strong>@Model.CourseCount.ToString("N0") درس</strong>}</div>
+            }
+
+            <form asp-controller="Admin" method="post" class="admin-form" autocomplete="off">
+                <div asp-validation-summary="ModelOnly" class="form-errors"></div>
+                <div class="admin-field"><label asp-for="Session.PCookie">کوکی p</label><input asp-for="Session.PCookie" type="password" autocomplete="new-password" spellcheck="false" /><span asp-validation-for="Session.PCookie"></span></div>
+                <div class="admin-field"><label asp-for="Session.Sid">SID</label><input asp-for="Session.Sid" type="password" autocomplete="new-password" spellcheck="false" /><span asp-validation-for="Session.Sid"></span></div>
+                <div class="admin-field"><label asp-for="Session.Ticket">Ticket</label><input asp-for="Session.Ticket" type="password" autocomplete="new-password" spellcheck="false" /><span asp-validation-for="Session.Ticket"></span></div>
+                <div class="admin-field"><label asp-for="Session.Seq">Seq</label><input asp-for="Session.Seq" type="password" autocomplete="new-password" spellcheck="false" /><span asp-validation-for="Session.Seq"></span></div>
+                <div class="admin-actions"><button type="submit" asp-action="TestSession" class="admin-secondary-button">آزمایش اتصال</button><button type="submit" asp-action="UpdateCourses" class="admin-primary-button">به‌روزرسانی دروس</button></div>
+            </form>
+        </section>
+    </div>
+</main>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}
